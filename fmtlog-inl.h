@@ -22,10 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include "fmtlog.h"
+
+#ifdef CPP20_MODULES
+import std;
+import fmt;
+#else
+#include <ios>
+#include <limits>
 #include <mutex>
 #include <thread>
-#include <limits>
-#include <ios>
 
 #ifdef _WIN32
 #ifndef NOMINMAX
@@ -34,9 +39,11 @@ SOFTWARE.
 #include <windows.h>
 #include <processthreadsapi.h>
 #else
-#include <sys/syscall.h>
 #include <unistd.h>
 #endif
+#endif // CPP20_MODULES
+
+#include <sys/syscall.h>
 
 template<int ___ = 0>
 class fmtlogDetailT
@@ -480,6 +487,10 @@ thread_local typename fmtlogDetailT<_>::ThreadBufferDestroyer fmtlogDetailT<_>::
 template<int __ = 0>
 struct fmtlogDetailWrapper
 { static fmtlogDetailT<> impl; };
+
+#ifdef CPP20_MODULES
+import std;
+#endif
 
 template<int _>
 fmtlogDetailT<> fmtlogDetailWrapper<_>::impl;

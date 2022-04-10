@@ -22,12 +22,38 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #pragma once
-//#define FMT_HEADER_ONLY
+#define FMT_HEADER_ONLY
+
+#ifdef CPP20_MODULES
+import std;
+import fmt;
+#ifndef FMT_USE_NOEXCEPT
+#define FMT_USE_NOEXCEPT 0
+#endif
+
+#if FMT_USE_NOEXCEPT || FMT_HAS_FEATURE(cxx_noexcept) ||                       \
+    FMT_GCC_VERSION >= 408 || FMT_MSC_VER >= 1900
+#define FMT_DETECTED_NOEXCEPT noexcept
+#define FMT_HAS_CXX11_NOEXCEPT 1
+#else
+#define FMT_DETECTED_NOEXCEPT throw()
+#define FMT_HAS_CXX11_NOEXCEPT 0
+#endif
+
+#ifndef FMT_NOEXCEPT
+#if FMT_EXCEPTIONS || FMT_HAS_CXX11_NOEXCEPT
+#define FMT_NOEXCEPT FMT_DETECTED_NOEXCEPT
+#else
+#define FMT_NOEXCEPT
+#endif
+#endif
+#else
 #include "fmt/format.h"
-#include <type_traits>
-#include <vector>
 #include <chrono>
 #include <memory>
+#include <type_traits>
+#include <vector>
+#endif // CPP20_MODULES
 
 #ifdef _WIN32
 #define FAST_THREAD_LOCAL thread_local
@@ -51,7 +77,7 @@ SOFTWARE.
 #define FMTLOG_ACTIVE_LEVEL FMTLOG_LEVEL_INF
 #endif
 
-namespace fmtlogdetail {
+    namespace fmtlogdetail {
 template<typename Arg>
 struct UnrefPtr : std::false_type
 { using type = Arg; };
