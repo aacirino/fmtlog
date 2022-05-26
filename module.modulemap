@@ -1,0 +1,6 @@
+module fmtlog {
+    requires cplusplus17
+    header "fmtlog-inl.h"
+    config_macros [exhaustive] FMTLOG_HEADER_ONLY
+    export *
+}
